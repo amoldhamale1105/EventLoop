@@ -1,103 +1,47 @@
-#ifndef TEMPLATE_METHODS
-#include <EventLoop.hpp>
+#include "EventLoop.hpp"
 
-#else
+EventManager EventLoop::m_evtManager;
 
-template <typename Type>
-EventLoop<Type>::EventLoop(bool free_shutdown)
-	: _shutdown(false),
-	_free_shutdown(free_shutdown),
-	_runner( &EventLoop<Type>::_event_loop, this )
+void EventLoop::Run()
 {
-
+	if (!m_evtManager.isRunning())
+		m_evtManager.start();
 }
 
-template <typename Type>
-EventLoop<Type>::~EventLoop()
+void EventLoop::Halt()
 {
-	std::unique_lock<std::mutex> dequeuelock(_mutex);
-	_shutdown = true;
-	_condition_variable.notify_all();
-	dequeuelock.unlock();
+	if (m_evtManager.isRunning())
+		m_evtManager.stop();
+}
 
-	if (_runner.joinable()) {
-		_runner.join();
+void EventLoop::RegisterEvent(const std::string& evtName, const std::function<void(Event*)>& callback)
+{
+	if (evtName.empty()){
+		std::cerr<<"Invalid event name. Failed to register event"<<std::endl;
+		return;
+	}
+	m_evtManager.registerCallback(evtName, callback);
+}
+
+void EventLoop::RegisterEvents(const std::vector<std::string>& events, const std::function<void(Event*)>& callback)
+{
+	for(const std::string& evtName : events)
+	{
+		RegisterEvent(evtName, callback);
 	}
 }
 
-template <typename Type>
-void EventLoop<Type>::_event_loop()
+void EventLoop::TriggerEvent(const std::string& evtName, void* data)
 {
-	while ( true ) {
-		try {
-			Type call = dequeue();
-			call();
-		}
-		catch (EventLoopNoElements&) {
-			return;
-		}
-		catch (std::exception& error) {
-			std::cerr << "Unexpected exception on EventLoop dequeue running: '" << error.what() << "'" << std::endl;
-		}
-		catch (...) {
-			std::cerr << "Unexpected exception on EventLoop dequeue running." << std::endl;
-		}
+	if (evtName.empty()){
+		std::cerr<<"Invalid event name. Failed to trigger event"<<std::endl;
+		return;
 	}
-	std::cerr << "The main EventLoop dequeue stopped running unexpectedly!" << std::endl;
+	if (m_evtManager.isRunning()){
+		Event* evt = new Event(evtName, data);
+		m_evtManager.processEvent(evt);
+	}
+	else{
+		std::cerr<<"Failed to trigger event. Event loop has already stopped"<<std::endl;
+	}
 }
-
-template <typename Type>
-void EventLoop<Type>::enqueue(int timeout, Type element)
-{
-	std::chrono::time_point<std::chrono::system_clock> timenow = std::chrono::system_clock::now();
-	std::chrono::time_point<std::chrono::system_clock> newtime = timenow + std::chrono::milliseconds(timeout);
-
-	std::unique_lock<std::mutex> dequeuelock(_mutex);
-	_queue.insert(std::make_tuple(newtime, element));
-	_condition_variable.notify_one();
-}
-
-template <typename Type>
-Type EventLoop<Type>::dequeue()
-{
-	typename EventLoopQueue::iterator queuebegin;
-	typename EventLoopQueue::iterator queueend;
-	std::chrono::time_point<std::chrono::system_clock> sleeptime;
-
-	// _mutex prevents multiple consumers from getting the same item or from missing the wake up
-	std::unique_lock<std::mutex> dequeuelock(_mutex);
-	do {
-		queuebegin = _queue.begin();
-		queueend = _queue.end();
-
-		if ( queuebegin == queueend ) {
-			if ( _shutdown ) {
-				throw EventLoopNoElements( "There are no more elements on the queue because it already shutdown." );
-			}
-			_condition_variable.wait( dequeuelock );
-		}
-		else {
-			if ( _shutdown ) {
-				if (_free_shutdown) {
-					break;
-				}
-				else {
-					throw EventLoopNoElements( "The queue is shutting down." );
-				}
-			}
-			std::chrono::time_point<std::chrono::system_clock> timenow = std::chrono::system_clock::now();
-			sleeptime = std::get<0>( *queuebegin );
-			if ( sleeptime <= timenow ) {
-				break;
-			}
-			_condition_variable.wait_until( dequeuelock, sleeptime );
-		}
-	} while ( true );
-
-	Type firstelement = std::get<1>( *queuebegin );
-	_queue.erase( queuebegin );
-	dequeuelock.unlock();
-	return firstelement;
-}
-
-#endif
