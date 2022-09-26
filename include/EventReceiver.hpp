@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include <queue>
+#include <list>
 #include <functional>
 #include "Event.hpp"
 
@@ -10,10 +10,11 @@ class EventReceiver
 public:
     EventReceiver();
     void enqueue(const std::string& evtName, const std::function<void(Event*)>& callback);
-    void processAndDequeue(Event* evt);
-    void remove(Event* evt);
+    void notifyAndDequeue(Event* evt);
+    void notifyAllReceivers(Event* evt);
+    void remove(const std::string& evtName);
     bool recevierQueueEmpty(const std::string& evtName) const;
 
 private:
-    std::unordered_map<std::string, std::queue<std::function<void(Event*)>>> m_recvQueueMap;
+    std::unordered_map<std::string, std::list<std::function<void(Event*)>>> m_recvQueueMap;
 };

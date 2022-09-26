@@ -31,17 +31,21 @@ void EventLoop::RegisterEvents(const std::vector<std::string>& events, const std
 	}
 }
 
+void EventLoop::DeregisterEvent(const std::string& evtName)
+{
+	if (evtName.empty()){
+		std::cerr<<"Invalid event name. Failed to deregister event"<<std::endl;
+		return;
+	}
+	m_evtManager.removeEvent(evtName);
+}
+
 void EventLoop::TriggerEvent(const std::string& evtName, void* data)
 {
 	if (evtName.empty()){
 		std::cerr<<"Invalid event name. Failed to trigger event"<<std::endl;
 		return;
 	}
-	if (m_evtManager.isRunning()){
-		Event* evt = new Event(evtName, data);
-		m_evtManager.processEvent(evt);
-	}
-	else{
-		std::cerr<<"Failed to trigger event. Event loop has already stopped"<<std::endl;
-	}
+	Event* evt = new Event(evtName, data);
+	m_evtManager.processEvent(evt);
 }

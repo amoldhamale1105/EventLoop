@@ -17,6 +17,11 @@ void EventManager::processEvent(Event* evt)
     m_conditionVar.notify_one();
 }
 
+void EventManager::removeEvent(const std::string& evtName)
+{
+    m_receiver.remove(evtName);
+}
+
 void EventManager::eventLoop()
 {
     std::unique_lock<std::mutex> evtLoopLock(m_mutex);
@@ -27,9 +32,7 @@ void EventManager::eventLoop()
         while (!m_sender.eventQueueEmpty())
         {
             Event* evt = m_sender.nextEvent();
-            // std::thread recvrInvokations(&EventManager::notifyReceivers, this, evt);
-            // recvrInvokations.detach();
-            notifyReceivers(evt);
+            m_receiver.notifyAllReceivers(evt);
             m_sender.dequeue();
         }
     }
@@ -70,13 +73,4 @@ void EventManager::stop()
 bool EventManager::isRunning() const
 {
     return !m_shutdown;
-}
-
-void EventManager::notifyReceivers(Event* evt)
-{
-    while (!m_receiver.recevierQueueEmpty(evt->getEvtName()))
-    {
-        m_receiver.processAndDequeue(evt);
-    }
-    m_receiver.remove(evt);
 }
