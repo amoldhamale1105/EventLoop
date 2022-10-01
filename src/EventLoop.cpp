@@ -49,3 +49,20 @@ void EventLoop::TriggerEvent(const std::string& evtName, void* data)
 	Event* evt = new Event(evtName, data);
 	m_evtManager.processEvent(evt);
 }
+
+void EventLoop::TriggerEvent(const std::string& evtName, const size_t& timeoutMS, void* data)
+{
+	if (evtName.empty()){
+		std::cerr<<"Invalid event name. Failed to trigger event"<<std::endl;
+		return;
+	}
+	if (timeoutMS == 0){
+		TriggerEvent(evtName, data);
+		return;
+	}
+
+	Event* evt = new Event(evtName, data);
+	std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::system_clock::now();
+	std::chrono::time_point<std::chrono::system_clock> wakeupTime = currentTime + std::chrono::milliseconds(timeoutMS);
+	m_evtManager.scheduleEvent(evt, wakeupTime);
+}
