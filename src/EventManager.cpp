@@ -7,6 +7,18 @@ EventManager::EventManager() : m_shutdown(true)
 
 EventManager::~EventManager()
 {
+    while (!m_sender.eventQueueEmpty())
+    {
+        m_sender.dequeue();
+    }
+    while (!m_sender.eventScheduleEmpty())
+    {
+        Event* evt = m_sender.nextEventSchedule().first;
+        if (evt != nullptr)
+            delete evt;
+        m_sender.removeEventSchedule();
+    }
+    
     if (m_scheduler.joinable())
         m_scheduler.join();
 }
@@ -87,7 +99,7 @@ void EventManager::processScheduledEvents()
 
         wakeupTime = m_sender.nextEventSchedule().second;
         currentTime = std::chrono::system_clock::now();
-        
+
         if (currentTime >= wakeupTime){
             processEvent(m_sender.nextEventSchedule().first);
             m_sender.removeEventSchedule();
