@@ -29,7 +29,7 @@ private:
     void eventScheduler();
     void processScheduledEvents();
     
-    bool m_shutdown;
+    bool m_shutdown, m_haltScheduler;
     std::thread m_scheduler;
     std::mutex m_mutex, m_schMutex;
     std::condition_variable m_conditionVar, m_schCondVar;
