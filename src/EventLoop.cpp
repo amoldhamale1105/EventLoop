@@ -14,6 +14,12 @@ void EventLoop::Halt()
 		m_evtManager.stop();
 }
 
+void EventLoop::SetMode(const EventLoop::Mode& mode)
+{
+	if (!m_evtManager.isRunning())
+		m_evtManager.blockPrimaryThread(mode == EventLoop::Mode::NON_BLOCK ? false : true);
+}
+
 void EventLoop::RegisterEvent(const std::string& evtName, const std::function<void(Event*)>& callback)
 {
 	if (evtName.empty()){

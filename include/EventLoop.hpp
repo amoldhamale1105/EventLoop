@@ -3,15 +3,16 @@
 #include "EventManager.hpp"
 #include <vector>
 
-enum Thread
-{
-    BLOCK = 0, //default
-    NON_BLOCK        
-};
-
 class EventLoop
 {
 public:
+    enum Mode
+    {
+        BLOCK,   /* default */
+        NON_BLOCK
+    };
+
+    static void SetMode(const Mode& mode);
     static void Run();
     static void Halt();
     

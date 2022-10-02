@@ -1,6 +1,6 @@
 #include "EventManager.hpp"
 
-EventManager::EventManager() : m_shutdown(true), m_haltScheduler(false)
+EventManager::EventManager() : m_blockPrimary(true), m_shutdown(true), m_haltScheduler(false)
 {
 
 }
@@ -19,8 +19,17 @@ EventManager::~EventManager()
         m_sender.removeEventSchedule();
     }
     
+    if (!m_shutdown)
+        stop();
+    if (!m_blockPrimary && m_mainLoop.joinable())
+        m_mainLoop.join();
     if (m_scheduler.joinable())
         m_scheduler.join();
+}
+
+void EventManager::blockPrimaryThread(bool blockPrimary)
+{
+    m_blockPrimary = blockPrimary;
 }
 
 void EventManager::registerCallback(const std::string& evtName, const std::function<void(Event*)>& callback)
@@ -117,7 +126,10 @@ void EventManager::start()
     {
         m_shutdown = false;
         m_scheduler = std::thread(&EventManager::eventScheduler, this);
-        eventLoop();
+        if (m_blockPrimary)
+            eventLoop();
+        else
+            m_mainLoop = std::thread(&EventManager::eventLoop, this);
     }
     catch(const EventLoopException& e)
     {

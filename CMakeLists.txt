@@ -12,7 +12,6 @@ include_directories(include)
 set(INCLUDES
     include/EventLoop.hpp)
 set(SOURCES
-    src/Common.cpp
     src/Event.cpp
     src/EventLoop.cpp
     src/EventManager.cpp

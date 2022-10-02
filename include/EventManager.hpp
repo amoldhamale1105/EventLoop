@@ -15,6 +15,7 @@ public:
     EventManager();
     ~EventManager();
     
+    void blockPrimaryThread(bool blockPrimary);
     void registerCallback(const std::string& evtName, const std::function<void(Event*)>& callback);
     void processEvent(Event* evt);
     void scheduleEvent(Event* evt, const std::chrono::time_point<std::chrono::system_clock>& wakeupTime);
@@ -29,8 +30,8 @@ private:
     void eventScheduler();
     void processScheduledEvents();
     
-    bool m_shutdown, m_haltScheduler;
-    std::thread m_scheduler;
+    bool m_blockPrimary, m_shutdown, m_haltScheduler;
+    std::thread m_mainLoop, m_scheduler;
     std::mutex m_mutex, m_schMutex;
     std::condition_variable m_conditionVar, m_schCondVar;
 
