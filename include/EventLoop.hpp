@@ -3,6 +3,12 @@
 #include "EventManager.hpp"
 #include <vector>
 
+enum Thread
+{
+    BLOCK = 0, //default
+    NON_BLOCK        
+};
+
 class EventLoop
 {
 public:
