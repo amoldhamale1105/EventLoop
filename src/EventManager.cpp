@@ -1,6 +1,6 @@
 #include "EventManager.hpp"
 
-EventManager::EventManager() : m_shutdown(true)
+EventManager::EventManager() : m_shutdown(true), m_haltScheduler(false)
 {
 
 }
@@ -92,10 +92,12 @@ void EventManager::processScheduledEvents()
     std::chrono::time_point<std::chrono::system_clock> currentTime, wakeupTime;
 
     std::unique_lock<std::mutex> schLoopLock(m_schMutex);
-    while (!m_shutdown)
+    while (!m_haltScheduler)
     {
         if (m_sender.eventScheduleEmpty())
             m_schCondVar.wait(schLoopLock);
+        if (m_shutdown || m_haltScheduler)
+            break;
 
         wakeupTime = m_sender.nextEventSchedule().second;
         currentTime = std::chrono::system_clock::now();
@@ -120,22 +122,29 @@ void EventManager::start()
     catch(const EventLoopException& e)
     {
         std::cerr << e.what() << '\n';
+        m_haltScheduler = true;
+        m_schCondVar.notify_all();
     }
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        m_haltScheduler = true;
+        m_schCondVar.notify_all();
     }
     catch(...)
     {
         std::cerr << "An unknown exception occured in the event loop!" << '\n';
+        m_haltScheduler = true;
+        m_schCondVar.notify_all();
     }
 }
 
 void EventManager::stop()
 {
     std::unique_lock<std::mutex> haltLock(m_mutex);
-    m_shutdown = true;
+    m_shutdown = m_haltScheduler = true;
     m_conditionVar.notify_all();
+    m_schCondVar.notify_all();
 }
 
 bool EventManager::isRunning() const
