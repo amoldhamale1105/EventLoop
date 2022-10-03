@@ -9,7 +9,7 @@ public:
     Event(const std::string& evtName, void* data);
     virtual ~Event();
 
-    std::string getEvtName() const;
+    std::string getName() const;
     void* getData() const;
 
 private:
