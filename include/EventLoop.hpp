@@ -75,7 +75,7 @@ public:
      * invoke all the callback handlers which have registered to this event along with associated data
      * 
      * @param evtName name of the event to be triggered to notify receivers who have registered to it
-     * @param data optional paramter containing address of the data to be delivered to the receiver. Any kind of data can be delivered with a void*,
+     * @param data optional parameter containing address of the data to be delivered to the receiver. Any kind of data can be delivered with a void*,
      * however care must be taken to typecast it correctly at the receiver end before deferencing to prevent incorrect interpretation or 
      * segmentation faults in case of invalid or NULL pointers
      */
@@ -87,7 +87,7 @@ public:
      * 
      * @param evtName name of the event to be triggered to notify receivers who have registered to it
      * @param timeoutMS period in milliseconds after which the event should be delivered to receivers
-     * @param data optional paramter containing address of the data to be delivered to the receiver. Any kind of data can be delivered with a void*,
+     * @param data optional parameter containing address of the data to be delivered to the receiver. Any kind of data can be delivered with a void*,
      * however care must be taken to typecast it correctly at the receiver end before deferencing to prevent incorrect interpretation or 
      * segmentation faults in case of invalid or NULL pointers
      */
