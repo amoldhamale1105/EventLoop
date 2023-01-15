@@ -36,19 +36,15 @@ QObject::connect(&app, &QGuiApplication::aboutToQuit, []{ EventLoop::Halt(); });
 In case of any questions or clarifications, you can reach out to me at amoldhamale1105@gmail.com  
 
 ## Build instructions
-Check for latest stable releases of the library in the releases section of this repository but if you wish to build a library from source with the current source code version, then follow the below instructions depending on your dev environment
-### VS Code
-Open the project and click on the **CMake** option in the taskbar  
-Configure the project using `Clean Reconfigure All`. Subsequently, build it using `Clean Rebuild All`  
+Check for latest stable releases of the library under `Releases` but if you wish to build a library from source with the current source code version, run the `build.sh` script  
 
-### Terminal/shell
-Open terminal window/shell and navigate to project root on the terminal  
-Run the following comands once at the root of the project  
+The script can be run without any options. Defaults for each option will appear in `{}` in the usage instruction. Learn about the script usage by running the following command
 ```
-mkdir -p build
-cd build
-cmake ..
-make
+./build.sh -h
+```
+As an example, if you want to use the script to build for release mode with `Unix Makefiles` cmake generator, the script can be executed as follows
+```
+./build.sh -a -r -g "Unix Makefiles"
 ```
 Build artifacts will be generated in the `build` directory  
 Output artifact will be present in `lib` directory as `libEventLoop.so` which can be further linked or moved to your target destination  
