@@ -82,13 +82,13 @@ void EventManager::eventLoop()
 
     while (!m_shutdown)
     {
-        m_conditionVar.wait(evtLoopLock);
         while (!m_sender.eventQueueEmpty())
         {
             Event* evt = m_sender.nextEvent();
             m_receiver.notifyAllReceivers(evt);
             m_sender.dequeue();
         }
+        m_conditionVar.wait(evtLoopLock);
     }
 
     if (!m_shutdown){
