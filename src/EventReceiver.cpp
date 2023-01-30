@@ -58,7 +58,8 @@ void EventReceiver::notifyAllReceivers(Event* evt)
         std::list<std::function<void(Event*)>> callbackQueue = evtPos->second;
         for(auto cbItr = callbackQueue.begin(); cbItr != callbackQueue.end(); ++cbItr)
         {
-            (*cbItr)(evt);
+            if (*cbItr != nullptr)
+                (*cbItr)(evt);
         }
     }
 }

@@ -59,14 +59,12 @@ void EventManager::registerCallback(const std::string& evtName, const std::funct
 
 void EventManager::processEvent(Event* evt)
 {
-    std::unique_lock<std::mutex> enqueLock(m_mutex);
     m_sender.enqueue(evt);
     m_conditionVar.notify_one();
 }
 
 void EventManager::scheduleEvent(Event* evt, const std::chrono::time_point<std::chrono::system_clock>& wakeupTime)
 {
-    std::unique_lock<std::mutex> schLock(m_schMutex);
     m_sender.addScheduledEvent(evt, wakeupTime);
     m_schCondVar.notify_one();
 }
@@ -88,7 +86,7 @@ void EventManager::eventLoop()
             m_receiver.notifyAllReceivers(evt);
             m_sender.dequeue();
         }
-        m_conditionVar.wait(evtLoopLock);
+        m_conditionVar.wait(evtLoopLock, [&]{ return !m_sender.eventQueueEmpty(); });
     }
 
     if (!m_shutdown){
@@ -123,8 +121,7 @@ void EventManager::processScheduledEvents()
     std::unique_lock<std::mutex> schLoopLock(m_schMutex);
     while (!m_haltScheduler)
     {
-        if (m_sender.eventScheduleEmpty())
-            m_schCondVar.wait(schLoopLock);
+        m_schCondVar.wait(schLoopLock, [&]{ return !m_sender.eventScheduleEmpty(); });
         if (m_shutdown || m_haltScheduler)
             break;
 
@@ -173,7 +170,6 @@ void EventManager::start()
 
 void EventManager::stop()
 {
-    std::unique_lock<std::mutex> haltLock(m_mutex);
     m_shutdown = m_haltScheduler = true;
     m_conditionVar.notify_all();
     m_schCondVar.notify_all();
