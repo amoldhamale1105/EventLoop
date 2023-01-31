@@ -86,7 +86,7 @@ void EventManager::eventLoop()
             m_receiver.notifyAllReceivers(evt);
             m_sender.dequeue();
         }
-        m_conditionVar.wait(evtLoopLock, [&]{ return !m_sender.eventQueueEmpty(); });
+        m_conditionVar.wait(evtLoopLock, [&]{ return !m_sender.eventQueueEmpty() || m_shutdown; });
     }
 
     if (!m_shutdown){
@@ -121,7 +121,7 @@ void EventManager::processScheduledEvents()
     std::unique_lock<std::mutex> schLoopLock(m_schMutex);
     while (!m_haltScheduler)
     {
-        m_schCondVar.wait(schLoopLock, [&]{ return !m_sender.eventScheduleEmpty(); });
+        m_schCondVar.wait(schLoopLock, [&]{ return !m_sender.eventScheduleEmpty() || m_shutdown || m_haltScheduler; });
         if (m_shutdown || m_haltScheduler)
             break;
 
