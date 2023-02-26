@@ -33,7 +33,7 @@ QObject::connect(&app, &QGuiApplication::aboutToQuit, []{ EventLoop::Halt(); });
 ```
 **Note:** Any code just after a blocking `EventLoop::Run()` call on the same thread will not execute because the `EventLoop::Run()` blocks the current thread to process events as per design.  
 
-In case of any questions or clarifications, you can reach out to me at amoldhamale1105@gmail.com  
+Shopping cart app (https://github.com/amoldhamale1105/ShoppingCart) serves as a usage reference of this library and API. In case of any questions or clarifications, you can reach out to me at amoldhamale1105@gmail.com  
 
 ## Build instructions
 Check for latest stable releases of the library under `Releases` but if you wish to build a library from source with the current source code version, run the `build.sh` script  
