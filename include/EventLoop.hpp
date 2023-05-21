@@ -11,8 +11,11 @@
  */
 #pragma once
 
-#include "EventManager.hpp"
 #include <vector>
+#include <functional>
+#include <string>
+
+class Event;
 
 class EventLoop
 {
@@ -92,7 +95,4 @@ public:
      * segmentation faults in case of invalid or NULL pointers
      */
     static void TriggerEvent(const std::string& evtName, const size_t& timeoutMS, void* data = nullptr);
-
-private:
-    static EventManager m_evtManager;
 };

@@ -18,7 +18,10 @@ Broadcasting is quintessential when you want multiple components of the applicat
 Another solid intention was to create an event driven system which is completely application agnostic in which it runs independently without needing any connections or objects to receive or trigger an event. Thus, `EventLoop` is a standalone static class with static methods enabling the developer to issue any API call from absolutely any thread, anywhere in your code. You just need to register a callback with the `EventLoop::RegisterEvent()` call, start the event loop with `EventLoop::Run()` and you are good to go!
 
 ## Detailed Usage
-As a user, you can dynamically link the event loop library to your application and include the `EventLoop.hpp` header in your application code to access the library methods. Other headers from the `include` directory of this project need to be present in your include path but should not be used directly in your application as they are ancilliary headers for `EventLoop`  
+As a user, you can dynamically link the event loop library to your application and include the `EventLoop.hpp` header in your application code to access the library methods. Since we are using `Event` as a custom type to deliver and receive events with name and data, `Event.hpp` header will be required in the source files fetching those details from an incoming event  
+
+**Note:** DO NOT include any other headers from the *include* directory of this project apart from ones mentioned above, while using the library in your application  
+
 Detailed API documentation can be found in the `EventLoop.hpp` header. The following steps demonstrate possible usage of event loop in your application:  
 - **[Optional step]** In the `main()` function of your program, call `EventLoop::SetMode()` method if you want the loop to be non-blocking. No need to call this explicitly for blocking mode because that's the default mode  
 - **[Mandatory step]** Call the `EventLoop::Run()` method in `main()` where you wish the event loop to start and/or block  
@@ -31,7 +34,7 @@ Detailed API documentation can be found in the `EventLoop.hpp` header. The follo
 ```
 QObject::connect(&app, &QGuiApplication::aboutToQuit, []{ EventLoop::Halt(); });
 ```
-**Note:** Any code just after a blocking `EventLoop::Run()` call on the same thread will not execute because the `EventLoop::Run()` blocks the current thread to process events as per design.  
+**Note:** Any code just after a blocking `EventLoop::Run()` call on the same thread will not execute until the event loop is halted because `EventLoop::Run()` blocks the current thread to process events by design.  
 
 Shopping cart app (https://github.com/amoldhamale1105/ShoppingCart) serves as a usage reference of this library and API. In case of any questions or clarifications, you can reach out to me at amoldhamale1105@gmail.com  
 
