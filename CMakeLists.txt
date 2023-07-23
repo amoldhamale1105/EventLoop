@@ -9,8 +9,10 @@ find_package(Threads REQUIRED)
 
 include_directories(include)
 
+# INCLUDES variable defines the headers required by apps using this library
 set(INCLUDES
-    include/EventLoop.hpp)
+    include/Event.h
+    include/EventLoop.h)
 set(SOURCES
     src/Event.cpp
     src/EventLoop.cpp

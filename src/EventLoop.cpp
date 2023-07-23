@@ -18,7 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
     USA
  */
-#include "EventLoop.hpp"
+#include "EventLoop.h"
 #include "EventManager.hpp"
 
 static EventManager evtManager;

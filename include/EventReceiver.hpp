@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <list>
 #include <functional>
-#include "Event.hpp"
+#include "Event.h"
 
 class EventReceiver
 {

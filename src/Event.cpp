@@ -18,7 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
     USA
  */
-#include "Event.hpp"
+#include "Event.h"
 
 Event::Event(const std::string& evtName) : m_evtName(evtName), m_data(nullptr)
 {

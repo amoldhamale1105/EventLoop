@@ -4,7 +4,7 @@
 #include <set>
 #include <chrono>
 #include <functional>
-#include "Event.hpp"
+#include "Event.h"
 #include "EventLoopException.hpp"
 
 typedef std::pair<Event*,std::chrono::time_point<std::chrono::system_clock>> EventSchedule;
