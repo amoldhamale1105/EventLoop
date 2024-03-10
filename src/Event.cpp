@@ -47,4 +47,4 @@ void* Event::getData() const
     return m_data;
 }
 
-}//namespace EventLoop
+} // namespace EventLoop

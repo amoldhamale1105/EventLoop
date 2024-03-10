@@ -19,4 +19,4 @@ private:
     void* m_data;
 };
 
-}//namespace EventLoop
+} // namespace EventLoop
