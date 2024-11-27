@@ -20,6 +20,8 @@
  */
 #include "EventManager.hpp"
 
+uisng eventloop::Event;
+
 EventManager::EventManager() : m_blockPrimary(true), m_shutdown(true), m_haltScheduler(false)
 {
 

@@ -20,6 +20,8 @@
  */
 #include "Event.h"
 
+namespace eventloop {
+
 Event::Event(const std::string& evtName) : m_evtName(evtName), m_data(nullptr)
 {
 
@@ -44,3 +46,5 @@ void* Event::getData() const
 {
     return m_data;
 }
+
+}//namespace eventloop
