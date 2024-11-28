@@ -15,6 +15,8 @@
 #include <functional>
 #include <string>
 
+namespace eventloop {
+
 class Event;
 
 class EventLoop
@@ -96,3 +98,5 @@ public:
      */
     static void TriggerEvent(const std::string& evtName, const size_t& timeoutMS, void* data = nullptr);
 };
+
+}//namespace eventloop

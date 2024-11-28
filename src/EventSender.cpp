@@ -20,6 +20,8 @@
  */
 #include "EventSender.hpp"
 
+using eventloop::Event;
+
 EventSender::EventSender()
 {
 
