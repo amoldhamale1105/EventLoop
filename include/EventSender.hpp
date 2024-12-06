@@ -7,19 +7,19 @@
 #include "Event.h"
 #include "EventLoopException.hpp"
 
-typedef std::pair<eventloop::Event*,std::chrono::time_point<std::chrono::system_clock>> EventSchedule;
+typedef std::pair<EventLoop::Event*,std::chrono::time_point<std::chrono::system_clock>> EventSchedule;
 
 class EventSender
 {
 public:
     EventSender();
     
-    void enqueue(eventloop::Event* evt);
+    void enqueue(EventLoop::Event* evt);
     void dequeue();
-    void addScheduledEvent(eventloop::Event* evt, const std::chrono::time_point<std::chrono::system_clock>& wakeupTime);
+    void addScheduledEvent(EventLoop::Event* evt, const std::chrono::time_point<std::chrono::system_clock>& wakeupTime);
     void removeEventSchedule();
     
-    eventloop::Event* nextEvent() const;
+    EventLoop::Event* nextEvent() const;
     EventSchedule nextEventSchedule() const;
     
     bool eventQueueEmpty() const;
@@ -34,6 +34,6 @@ private:
             return e1.second < e2.second;
         }
     };
-    std::queue<eventloop::Event*> m_evtQueue;
+    std::queue<EventLoop::Event*> m_evtQueue;
     std::multiset<EventSchedule, EventCompare> m_scheduledEvts;
 };

@@ -16,9 +16,9 @@ public:
     ~EventManager();
     
     void blockPrimaryThread(bool blockPrimary);
-    void registerCallback(const std::string& evtName, const std::function<void(eventloop::Event*)>& callback);
-    void processEvent(eventloop::Event* evt);
-    void scheduleEvent(eventloop::Event* evt, const std::chrono::time_point<std::chrono::system_clock>& wakeupTime);
+    void registerCallback(const std::string& evtName, const std::function<void(EventLoop::Event*)>& callback);
+    void processEvent(EventLoop::Event* evt);
+    void scheduleEvent(EventLoop::Event* evt, const std::chrono::time_point<std::chrono::system_clock>& wakeupTime);
     void removeEvent(const std::string& evtName);
     
     void start();

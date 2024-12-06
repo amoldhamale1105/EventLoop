@@ -15,13 +15,10 @@
 #include <functional>
 #include <string>
 
-namespace eventloop {
+namespace EventLoop {
 
-class Event;
+    class Event;
 
-class EventLoop
-{
-public:
     enum Mode
     {
         BLOCK,   /* default */
@@ -35,20 +32,20 @@ public:
      * NON_BLOCK uses a secondary thread for the event handling without blocking the main thread. Can be used on top of existing blocking 
      * event loop like Qt framework's exec()
      */
-    static void SetMode(const Mode& mode);
+    void SetMode(const Mode& mode);
     
     /**
      * @brief Start the event loop at the point of the placement of this call. Please note that if the event loop mode is BLOCK,
      * code following this call will not execute until the loop execution is halted. NON_BLOCK mode will fall through on the current thread
      */
-    static void Run();
+    void Run();
 
     /**
      * @brief Stop the currently running event loop. This call is thread safe and will take care of resource cleanup. Residual events in the 
      * queue will be discarded once the event loop halts so make sure no part of the software depends on a scheduled event after the termination
      * of the event loop since such events will never be delivered to the corresponding receivers
      */
-    static void Halt();
+    void Halt();
     
     /**
      * @brief Register an event callback handler for given event name. The registered handler must accept one argument as the Event* pointer
@@ -56,7 +53,7 @@ public:
      * @param evtName name of the event to be subscribed for a notification
      * @param callback callback to be invoked once the event is triggered with Event* arg delivering data and event name
      */
-    static void RegisterEvent(const std::string& evtName, const std::function<void(Event*)>& callback);
+    void RegisterEvent(const std::string& evtName, const std::function<void(Event*)>& callback);
 
     /**
      * @brief Register a common callback handler for multiple events. The registered handler must accept one argument as the Event* pointer
@@ -65,7 +62,7 @@ public:
      * @param callback callback to be invoked on trigger of any of the events in the collection with Event* arg delivering data and event name
      * of respective event. The event name can be checked in common handlers to deal with specific events and their data
      */
-    static void RegisterEvents(const std::vector<std::string>& events, const std::function<void(Event*)>& callback);
+    void RegisterEvents(const std::vector<std::string>& events, const std::function<void(Event*)>& callback);
 
     /**
      * @brief Unregister or deregister an event from notifying any handlers. Please note that this action will prevent an event from notifying
@@ -73,7 +70,7 @@ public:
      * 
      * @param evtName name of event which can be ignored for callback invokations
      */
-    static void DeregisterEvent(const std::string& evtName);
+    void DeregisterEvent(const std::string& evtName);
 
     /**
      * @brief Trigger an instantaneous event to be delivered to all the receivers which have registered/subscribed to it. This will immediately 
@@ -84,7 +81,7 @@ public:
      * however care must be taken to typecast it correctly at the receiver end before dereferencing to prevent incorrect interpretation or 
      * segmentation faults in case of invalid or NULL pointers
      */
-    static void TriggerEvent(const std::string& evtName, void* data = nullptr);
+    void TriggerEvent(const std::string& evtName, void* data = nullptr);
 
     /**
      * @brief Trigger an event to be delivered to all the receivers after a specified timeout. This will schedule the event trigger 
@@ -96,7 +93,6 @@ public:
      * however care must be taken to typecast it correctly at the receiver end before dereferencing to prevent incorrect interpretation or 
      * segmentation faults in case of invalid or NULL pointers
      */
-    static void TriggerEvent(const std::string& evtName, const size_t& timeoutMS, void* data = nullptr);
-};
+    void TriggerEvent(const std::string& evtName, const size_t& timeoutMS, void* data = nullptr);
 
-}//namespace eventloop
+}//namespace EventLoop

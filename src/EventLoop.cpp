@@ -21,8 +21,6 @@
 #include "EventLoop.h"
 #include "EventManager.hpp"
 
-namespace eventloop {
-
 static EventManager evtManager;
 
 void EventLoop::Run()
@@ -95,5 +93,3 @@ void EventLoop::TriggerEvent(const std::string& evtName, const size_t& timeoutMS
 	std::chrono::time_point<std::chrono::system_clock> wakeupTime = currentTime + std::chrono::milliseconds(timeoutMS);
 	evtManager.scheduleEvent(evt, wakeupTime);
 }
-
-}//namespace eventloop

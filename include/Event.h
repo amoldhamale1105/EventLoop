@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace eventloop {
+namespace EventLoop {
 
 class Event
 {
@@ -19,4 +19,4 @@ private:
     void* m_data;
 };
 
-}//namespace eventloop
+}//namespace EventLoop

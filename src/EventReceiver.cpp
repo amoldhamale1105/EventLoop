@@ -20,7 +20,7 @@
  */
 #include "EventReceiver.hpp"
 
-using eventloop::Event;
+using EventLoop::Event;
 
 EventReceiver::EventReceiver()
 {
