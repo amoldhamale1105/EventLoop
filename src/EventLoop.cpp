@@ -23,25 +23,27 @@
 
 static EventManager evtManager;
 
-void EventLoop::Run()
+namespace EventLoop {
+
+void Run()
 {
 	if (!evtManager.isRunning())
 		evtManager.start();
 }
 
-void EventLoop::Halt()
+void Halt()
 {
 	if (evtManager.isRunning())
 		evtManager.stop();
 }
 
-void EventLoop::SetMode(const EventLoop::Mode& mode)
+void SetMode(const EventLoop::Mode& mode)
 {
 	if (!evtManager.isRunning())
 		evtManager.blockPrimaryThread(mode == EventLoop::Mode::NON_BLOCK ? false : true);
 }
 
-void EventLoop::RegisterEvent(const std::string& evtName, const std::function<void(Event*)>& callback)
+void RegisterEvent(const std::string& evtName, const std::function<void(Event*)>& callback)
 {
 	if (evtName.empty()){
 		std::cerr<<"Invalid event name. Failed to register event"<<std::endl;
@@ -50,7 +52,7 @@ void EventLoop::RegisterEvent(const std::string& evtName, const std::function<vo
 	evtManager.registerCallback(evtName, callback);
 }
 
-void EventLoop::RegisterEvents(const std::vector<std::string>& events, const std::function<void(Event*)>& callback)
+void RegisterEvents(const std::vector<std::string>& events, const std::function<void(Event*)>& callback)
 {
 	for(const std::string& evtName : events)
 	{
@@ -58,7 +60,7 @@ void EventLoop::RegisterEvents(const std::vector<std::string>& events, const std
 	}
 }
 
-void EventLoop::DeregisterEvent(const std::string& evtName)
+void DeregisterEvent(const std::string& evtName)
 {
 	if (evtName.empty()){
 		std::cerr<<"Invalid event name. Failed to deregister event"<<std::endl;
@@ -67,7 +69,7 @@ void EventLoop::DeregisterEvent(const std::string& evtName)
 	evtManager.removeEvent(evtName);
 }
 
-void EventLoop::TriggerEvent(const std::string& evtName, void* data)
+void TriggerEvent(const std::string& evtName, void* data)
 {
 	if (evtName.empty()){
 		std::cerr<<"Invalid event name. Failed to trigger event"<<std::endl;
@@ -77,7 +79,7 @@ void EventLoop::TriggerEvent(const std::string& evtName, void* data)
 	evtManager.processEvent(evt);
 }
 
-void EventLoop::TriggerEvent(const std::string& evtName, const size_t& timeoutMS, void* data)
+void TriggerEvent(const std::string& evtName, const size_t& timeoutMS, void* data)
 {
 	if (evtName.empty()){
 		std::cerr<<"Invalid event name. Failed to trigger event"<<std::endl;
@@ -93,3 +95,5 @@ void EventLoop::TriggerEvent(const std::string& evtName, const size_t& timeoutMS
 	std::chrono::time_point<std::chrono::system_clock> wakeupTime = currentTime + std::chrono::milliseconds(timeoutMS);
 	evtManager.scheduleEvent(evt, wakeupTime);
 }
+
+} // namespace EventLoop

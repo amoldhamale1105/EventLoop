@@ -20,6 +20,8 @@
  */
 #include "EventReceiver.hpp"
 
+using EventLoop::Event;
+
 EventReceiver::EventReceiver()
 {
 

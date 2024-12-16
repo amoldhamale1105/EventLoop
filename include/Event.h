@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace EventLoop {
+
 class Event
 {
 public:
@@ -16,3 +18,5 @@ private:
     std::string m_evtName;
     void* m_data;
 };
+
+} // namespace EventLoop

@@ -9,12 +9,12 @@ class EventReceiver
 {
 public:
     EventReceiver();
-    void enqueue(const std::string& evtName, const std::function<void(Event*)>& callback);
-    void notifyAndDequeue(Event* evt);
-    void notifyAllReceivers(Event* evt);
+    void enqueue(const std::string& evtName, const std::function<void(EventLoop::Event*)>& callback);
+    void notifyAndDequeue(EventLoop::Event* evt);
+    void notifyAllReceivers(EventLoop::Event* evt);
     void remove(const std::string& evtName);
     bool recevierQueueEmpty(const std::string& evtName) const;
 
 private:
-    std::unordered_map<std::string, std::list<std::function<void(Event*)>>> m_recvQueueMap;
+    std::unordered_map<std::string, std::list<std::function<void(EventLoop::Event*)>>> m_recvQueueMap;
 };

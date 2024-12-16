@@ -20,6 +20,8 @@
  */
 #include "EventManager.hpp"
 
+using EventLoop::Event;
+
 EventManager::EventManager() : m_blockPrimary(true), m_shutdown(true), m_haltScheduler(false)
 {
 
