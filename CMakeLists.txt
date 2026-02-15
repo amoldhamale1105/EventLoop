@@ -2,18 +2,6 @@ cmake_minimum_required(VERSION 3.1.0)
 
 project(EventLoop VERSION 2.0.0)
 
-include(FetchContent)
-
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
-
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-enable_testing()
-
 find_package(Threads REQUIRED)
 
 include_directories(include)
@@ -44,23 +32,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
-# --------------------
-# Tests
-# --------------------
-
-add_executable(EventLoopTests
-    tests/EventLoopBasicTest.cpp
-)	
-
-target_link_libraries(EventLoopTests
-    PRIVATE
-    gtest
-    gtest_main
-    EventLoop
-)
-
-add_test(
-    NAME EventLoopBasicTest
-    COMMAND EventLoopTests
-)
+if(TEST_COVERAGE)
+    target_compile_options(${PROJECT_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
+    target_link_options(${PROJECT_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
 
