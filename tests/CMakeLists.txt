@@ -4,6 +4,11 @@ FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
 )
+
+if(MSVC)
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif()
+
 FetchContent_MakeAvailable(googletest)
 
 add_executable(EventLoopTests EventLoopBasicTest.cpp)
@@ -15,7 +20,9 @@ target_link_libraries(EventLoopTests
     EventLoop
 )
 
-target_compile_options(EventLoopTests PRIVATE -coverage)
-target_link_options(EventLoopTests PRIVATE -coverage)
+if(NOT MSVC)
+    target_compile_options(EventLoopTests PRIVATE -coverage)
+    target_link_options(EventLoopTests PRIVATE -coverage)
+endif()
 
 add_test(NAME EventLoopBasicTest COMMAND EventLoopTests)

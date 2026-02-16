@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.14)
 
 project(EventLoop VERSION 2.0.0)
 
@@ -6,7 +6,6 @@ find_package(Threads REQUIRED)
 
 include_directories(include)
 
-# INCLUDES variable defines the headers required by apps using this library
 set(INCLUDES
     include/Event.h
     include/EventLoop.h)
@@ -17,9 +16,9 @@ set(SOURCES
     src/EventSender.cpp
     src/EventReceiver.cpp)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME} STATIC
     ${INCLUDES}
     ${SOURCES})
 
@@ -32,10 +31,16 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
+if(MSVC)
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif()
+
 if(TEST_COVERAGE)
-    target_compile_options(${PROJECT_NAME} PRIVATE -coverage)
-    target_link_options(${PROJECT_NAME} PRIVATE -coverage)
+    if(NOT MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE -coverage)
+        target_link_options(${PROJECT_NAME} PRIVATE -coverage)
+    endif()
+    
     enable_testing()
     add_subdirectory(tests)
 endif()
-
