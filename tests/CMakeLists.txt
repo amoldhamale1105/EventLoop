@@ -15,7 +15,7 @@ target_link_libraries(EventLoopTests
     EventLoop
 )
 
-target_compile_options(EventLoopTests PRIVATE -fprofile-arcs -ftest-coverage)
-target_link_options(EventLoopTests PRIVATE -fprofile-arcs -ftest-coverage)
+target_compile_options(EventLoopTests PRIVATE -coverage)
+target_link_options(EventLoopTests PRIVATE -coverage)
 
 add_test(NAME EventLoopBasicTest COMMAND EventLoopTests)
