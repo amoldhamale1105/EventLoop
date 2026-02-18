@@ -6,6 +6,7 @@ find_package(Threads REQUIRED)
 
 include_directories(include)
 
+# A INCLUDES variable defines the headers required by apps using this library
 set(INCLUDES
     include/Event.h
     include/EventLoop.h)
@@ -15,7 +16,7 @@ set(SOURCES
     src/EventManager.cpp
     src/EventSender.cpp
     src/EventReceiver.cpp)
-    
+
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 add_library(${PROJECT_NAME} SHARED
@@ -27,15 +28,15 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     OUTPUT_NAME ${PROJECT_NAME}
     CXX_STANDARD_REQUIRED YES
-    WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
+
+if(MSVC)
+    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif()
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
-
-if(MSVC)
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-endif()
 
 if(TEST_COVERAGE)
     if(NOT MSVC)
