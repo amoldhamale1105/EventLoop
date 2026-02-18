@@ -15,10 +15,10 @@ set(SOURCES
     src/EventManager.cpp
     src/EventSender.cpp
     src/EventReceiver.cpp)
+    
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
-# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
-
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} SHARED
     ${INCLUDES}
     ${SOURCES})
 
@@ -27,7 +27,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     OUTPUT_NAME ${PROJECT_NAME}
     CXX_STANDARD_REQUIRED YES
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
+
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 

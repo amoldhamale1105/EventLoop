@@ -26,3 +26,9 @@ if(NOT MSVC)
 endif()
 
 add_test(NAME EventLoopBasicTest COMMAND EventLoopTests)
+
+if(WIN32)
+    set_tests_properties(EventLoopBasicTest PROPERTIES 
+        ENVIRONMENT "PATH=$<TARGET_FILE_DIR:EventLoop>;$ENV{PATH}"
+    )
+endif()
