@@ -47,3 +47,21 @@ if(TEST_COVERAGE)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+install(TARGETS ${PROJECT_NAME}
+    EXPORT EventLoopTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+
+install(FILES ${INCLUDES}
+    DESTINATION include
+)
+
+install(EXPORT EventLoopTargets
+    FILE EventLoopConfig.cmake
+    NAMESPACE EventLoop::
+    DESTINATION lib/cmake/EventLoop
+)
