@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(EventLoop VERSION 2.0.0)
+project(EventLoop VERSION 2.0.0 LANGUAGES CXX)
+
+include(GNUInstallDirs)
 
 find_package(Threads REQUIRED)
 
@@ -47,3 +49,21 @@ if(TEST_COVERAGE)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+install(TARGETS ${PROJECT_NAME}
+    EXPORT EventLoopTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(FILES ${INCLUDES}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT EventLoopTargets
+    FILE EventLoopConfig.cmake
+    NAMESPACE EventLoop::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/EventLoop
+)
