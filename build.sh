@@ -66,8 +66,6 @@ if [ "${COVERAGE}" = "ON" ]; then
     OS="$(uname -s)"
     if [[ "${OS}" == MINGW* ]] || [[ "${OS}" == MSYS* ]] || [[ "${OS}" == CYGWIN* ]]; then
         # ── Windows: OpenCppCoverage ──────────────────────────────────────────
-        # Requires OpenCppCoverage on PATH.
-        # Install via: winget install OpenCppCoverage  OR  choco install opencppcoverage
         if ! command -v OpenCppCoverage &>/dev/null; then
             echo "WARNING: OpenCppCoverage not found on PATH. Skipping Windows coverage report."
             echo "Install it with: winget install OpenCppCoverage"
