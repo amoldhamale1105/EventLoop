@@ -22,7 +22,7 @@ target_link_libraries(EventLoopTests
     EventLoop
 )
 
-if(NOT MSVC)
+if(TEST_COVERAGE AND NOT MSVC)
     target_compile_options(EventLoopTests PRIVATE -coverage)
     target_link_options(EventLoopTests PRIVATE -coverage)
 endif()
