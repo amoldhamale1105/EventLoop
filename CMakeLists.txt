@@ -6,6 +6,8 @@ include(GNUInstallDirs)
 
 find_package(Threads REQUIRED)
 
+option(EVENTLOOP_BUILD_TESTS "Build the EventLoop tests" OFF)
+
 include_directories(include)
 
 # A INCLUDES variable defines the headers required by apps using this library
@@ -40,12 +42,12 @@ endif()
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
-if(TEST_COVERAGE)
-    if(NOT MSVC)
-        target_compile_options(${PROJECT_NAME} PRIVATE -coverage)
-        target_link_options(${PROJECT_NAME} PRIVATE -coverage)
-    endif()
-    
+if(TEST_COVERAGE AND NOT MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE -coverage)
+    target_link_options(${PROJECT_NAME} PRIVATE -coverage)
+endif()
+
+if(TEST_COVERAGE OR EVENTLOOP_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()

@@ -61,13 +61,22 @@ void EventManager::registerCallback(const std::string& evtName, const std::funct
 
 void EventManager::processEvent(Event* evt)
 {
-    m_sender.enqueue(evt);
+    // Under m_mutex: eventLoop() reads and pops the same queue under it, and checks its wait
+    // predicate under it, so a notification sent after this push cannot be missed.
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_sender.enqueue(evt);
+    }
     m_conditionVar.notify_one();
 }
 
 void EventManager::scheduleEvent(Event* evt, const std::chrono::time_point<std::chrono::system_clock>& wakeupTime)
 {
-    m_sender.addScheduledEvent(evt, wakeupTime);
+    // Under m_schMutex, for the same reasons as processEvent() with the scheduler thread.
+    {
+        std::lock_guard<std::mutex> lock(m_schMutex);
+        m_sender.addScheduledEvent(evt, wakeupTime);
+    }
     m_schCondVar.notify_one();
 }
 
@@ -84,8 +93,12 @@ void EventManager::eventLoop()
     {
         while (!m_sender.eventQueueEmpty())
         {
+            // Only this thread pops, so evt stays at the front while the lock is released for the
+            // handlers: a handler may call TriggerEvent(), which takes m_mutex in processEvent().
             Event* evt = m_sender.nextEvent();
+            evtLoopLock.unlock();
             m_receiver.notifyAllReceivers(evt);
+            evtLoopLock.lock();
             m_sender.dequeue();
         }
         m_conditionVar.wait(evtLoopLock, [&]{ return !m_sender.eventQueueEmpty() || m_shutdown; });
@@ -172,7 +185,16 @@ void EventManager::start()
 
 void EventManager::stop()
 {
-    m_shutdown = m_haltScheduler = true;
+    // Each flag is set under the mutex its loop checks it under, so neither loop can miss the
+    // notification between checking its predicate and blocking on its condition variable.
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_shutdown = true;
+    }
+    {
+        std::lock_guard<std::mutex> lock(m_schMutex);
+        m_haltScheduler = true;
+    }
     m_conditionVar.notify_all();
     m_schCondVar.notify_all();
 }
