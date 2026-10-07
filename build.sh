@@ -81,13 +81,13 @@ if [ "${COVERAGE}" = "ON" ]; then
             fi
 
             echo "Generating Windows coverage report with OpenCppCoverage..."
-            OpenCppCoverage \
-                --sources "${PWD}/src" \
-                --sources "${PWD}/include" \
-                --modules "${LIB_DLL}" \
-                --export_type "html:${COVERAGE_DIR}/html" \
-                --export_type "cobertura:${COVERAGE_DIR}/coverage.xml" \
-                -- "${TEST_EXE}"
+            PATH="$(dirname "${LIB_DLL}"):${PATH}" OpenCppCoverage \
+                --sources "$(cygpath -w "${PWD}/src")" \
+                --sources "$(cygpath -w "${PWD}/include")" \
+                --modules "$(cygpath -w "${LIB_DLL}")" \
+                --export_type "html:$(cygpath -w "${COVERAGE_DIR}/html")" \
+                --export_type "cobertura:$(cygpath -w "${COVERAGE_DIR}/coverage.xml")" \
+                -- "$(cygpath -w "${TEST_EXE}")" || { echo "Coverage generation failed."; exit 1; }
 
             echo "Coverage report generated at: ${COVERAGE_DIR}/html/index.html"
         fi
