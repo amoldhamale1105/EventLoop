@@ -156,6 +156,15 @@ void EventManager::start()
 {
     try
     {
+        // A previous run's threads may still be joinable here (stop() signals
+        // shutdown but does not join). Reassigning a std::thread that already
+        // represents a joinable thread calls std::terminate(), so clean those
+        // up first to allow the loop to be safely restarted after a Halt().
+        if (m_mainLoop.joinable())
+            m_mainLoop.join();
+        if (m_scheduler.joinable())
+            m_scheduler.join();
+
         m_shutdown = false;
         m_scheduler = std::thread(&EventManager::eventScheduler, this);
         if (m_blockPrimary)

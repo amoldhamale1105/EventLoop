@@ -58,19 +58,57 @@ if [ "${COVERAGE}" = "ON" ]; then
     echo "Running unit tests..."
     BUILD_DIR="$(pwd)/build"
     (cd "${BUILD_DIR}" && ctest --output-on-failure) || { echo "Tests failed."; exit 1; }
-    
+
     echo "Tests passed. Generating coverage report..."
     COVERAGE_DIR="${BUILD_DIR}/coverage"
-    mkdir -p ${COVERAGE_DIR}
-    
-    lcov --directory "${BUILD_DIR}" --capture --output-file ${COVERAGE_DIR}/coverage.info \
-        --rc branch_coverage=1 --exclude '/usr/*' --exclude '*/tests/*' --exclude '*/_deps/*' \
-        --quiet
-    
-    genhtml --output-directory ${COVERAGE_DIR}/html --title "Event Loop Code Coverage" \
-            --prefix "${PWD}" --rc branch_coverage=1 --quiet ${COVERAGE_DIR}/coverage.info
-    
-    echo "Coverage report generated at: ${COVERAGE_DIR}/html/index.html"
+    mkdir -p "${COVERAGE_DIR}"
+
+    OS="$(uname -s)"
+    if [[ "${OS}" == MINGW* ]] || [[ "${OS}" == MSYS* ]] || [[ "${OS}" == CYGWIN* ]]; then
+        # ── Windows: OpenCppCoverage ──────────────────────────────────────────
+        if ! command -v OpenCppCoverage &>/dev/null; then
+            echo "WARNING: OpenCppCoverage not found on PATH. Skipping Windows coverage report."
+            echo "Install it with: winget install OpenCppCoverage"
+        else
+            # Support both multi-config generators (MSVC) and single-config (Ninja/MinGW).
+            # Multi-config puts binaries under build/tests/<BuildType>/; single-config does not.
+            if [ -f "${BUILD_DIR}/tests/${BUILD_TYPE}/EventLoopTests.exe" ]; then
+                TEST_EXE="${BUILD_DIR}/tests/${BUILD_TYPE}/EventLoopTests.exe"
+                LIB_DLL="${BUILD_DIR}/${BUILD_TYPE}/EventLoop.dll"
+            else
+                TEST_EXE="${BUILD_DIR}/tests/EventLoopTests.exe"
+                LIB_DLL="${BUILD_DIR}/EventLoop.dll"
+            fi
+
+            echo "Generating Windows coverage report with OpenCppCoverage..."
+            PATH="$(dirname "${LIB_DLL}"):${PATH}" OpenCppCoverage \
+                --sources "$(cygpath -w "${PWD}/src")" \
+                --sources "$(cygpath -w "${PWD}/include")" \
+                --modules "$(cygpath -w "${LIB_DLL}")" \
+                --export_type "html:$(cygpath -w "${COVERAGE_DIR}/html")" \
+                --export_type "cobertura:$(cygpath -w "${COVERAGE_DIR}/coverage.xml")" \
+                -- "$(cygpath -w "${TEST_EXE}")" || { echo "Coverage generation failed."; exit 1; }
+
+            echo "Coverage report generated at: ${COVERAGE_DIR}/html/index.html"
+        fi
+    else
+        # ── Linux / macOS: lcov + genhtml ─────────────────────────────────────
+        # --ignore-errors unused: suppresses harmless warning when _deps/ does not
+        # exist (e.g. when gtest is installed system-wide instead of via FetchContent)
+        lcov --directory "${BUILD_DIR}" --capture \
+            --output-file "${COVERAGE_DIR}/coverage.info" \
+            --rc branch_coverage=1 \
+            --exclude '/usr/*' --exclude '*/tests/*' --exclude '*/_deps/*' \
+            --ignore-errors mismatch,empty,unused \
+            --quiet
+
+        genhtml --output-directory "${COVERAGE_DIR}/html" \
+                --title "Event Loop Code Coverage" \
+                --prefix "${PWD}" --rc branch_coverage=1 --quiet \
+                "${COVERAGE_DIR}/coverage.info"
+
+        echo "Coverage report generated at: ${COVERAGE_DIR}/html/index.html"
+    fi
 fi
 
 if [ ${TARGET} = "clean" ]; then
