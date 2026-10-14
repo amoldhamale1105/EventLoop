@@ -29,6 +29,7 @@ EventReceiver::EventReceiver()
 
 void EventReceiver::enqueue(const std::string& evtName, const std::function<void(Event*)>& callback)
 {
+    std::lock_guard<std::mutex> rcvLock(m_mutex);
     auto evtPos = m_recvQueueMap.find(evtName);
     if (evtPos != m_recvQueueMap.end()){
         evtPos->second.push_back(callback);
@@ -43,11 +44,14 @@ void EventReceiver::enqueue(const std::string& evtName, const std::function<void
 
 void EventReceiver::notifyAndDequeue(Event* evt)
 {
+    std::unique_lock<std::mutex> rcvLock(m_mutex);
     auto evtPos = m_recvQueueMap.find(evt->getName());
     if (evtPos != m_recvQueueMap.end()){
         std::list<std::function<void(Event*)>> callbackQueue = evtPos->second;
         if (!callbackQueue.empty()){
+            rcvLock.unlock();
             callbackQueue.front()(evt);
+            rcvLock.lock();
             callbackQueue.pop_front();
         }
     }
@@ -55,9 +59,11 @@ void EventReceiver::notifyAndDequeue(Event* evt)
 
 void EventReceiver::notifyAllReceivers(Event* evt)
 {
+    std::unique_lock<std::mutex> rcvLock(m_mutex);
     auto evtPos = m_recvQueueMap.find(evt->getName());
     if (evtPos != m_recvQueueMap.end()){
         std::list<std::function<void(Event*)>> callbackQueue = evtPos->second;
+        rcvLock.unlock();
         for(auto cbItr = callbackQueue.begin(); cbItr != callbackQueue.end(); ++cbItr)
         {
             if (*cbItr != nullptr)
@@ -68,6 +74,7 @@ void EventReceiver::notifyAllReceivers(Event* evt)
 
 void EventReceiver::remove(const std::string& evtName)
 {
+    std::lock_guard<std::mutex> rcvLock(m_mutex);
     auto evtPos = m_recvQueueMap.find(evtName);
     if (evtPos != m_recvQueueMap.end()){
         m_recvQueueMap.erase(evtPos);
@@ -76,6 +83,7 @@ void EventReceiver::remove(const std::string& evtName)
 
 bool EventReceiver::recevierQueueEmpty(const std::string& evtName) const
 {
+    std::lock_guard<std::mutex> rcvLock(m_mutex);
     bool isEmpty{false};
     auto evtPos = m_recvQueueMap.find(evtName);
     if (evtPos != m_recvQueueMap.end()){

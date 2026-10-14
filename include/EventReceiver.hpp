@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <list>
 #include <functional>
+#include <mutex>
 #include "Event.h"
 
 class EventReceiver
@@ -17,4 +18,5 @@ public:
 
 private:
     std::unordered_map<std::string, std::list<std::function<void(EventLoop::Event*)>>> m_recvQueueMap;
+    mutable std::mutex m_mutex;
 };

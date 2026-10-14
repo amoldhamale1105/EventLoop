@@ -46,7 +46,13 @@ add_test(NAME EventLoopThreadSafetyTest COMMAND EventLoopThreadSafetyTests)
 set_tests_properties(EventLoopBasicTest EventLoopThreadSafetyTest PROPERTIES TIMEOUT 120)
 
 if(WIN32)
+    set(_test_path "$<TARGET_FILE_DIR:EventLoop>;$ENV{PATH}")
+    if(MINGW)
+        get_filename_component(_compiler_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
+        string(APPEND _test_path ";${_compiler_bin}")
+    endif()
+    string(REPLACE ";" "\\;" _test_path "${_test_path}")
     set_tests_properties(EventLoopBasicTest EventLoopThreadSafetyTest PROPERTIES
-        ENVIRONMENT "PATH=$<TARGET_FILE_DIR:EventLoop>;$ENV{PATH}"
+        ENVIRONMENT "PATH=${_test_path}"
     )
 endif()

@@ -55,6 +55,10 @@ As an example, if you want to use the script to build for release mode with `Uni
 ```
 ./build.sh -a -r -g "Unix Makefiles"
 ```
+On Windows, run the script from Git Bash. Coverage requires Visual Studio C++ tools and OpenCppCoverage. You also need to specify the Visual Studio generator as follows
+```
+./build.sh -a -t -g "Visual Studio 17 2022"
+```
 Build artifacts will be generated in the `build` directory  
 Output artifact will be present in `lib` directory which can be further linked or moved to your target destination  
 
